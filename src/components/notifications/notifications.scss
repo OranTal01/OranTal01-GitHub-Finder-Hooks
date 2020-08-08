@@ -1,0 +1,9 @@
+.notification-container {
+  display: flex;
+  justify-content: space-between;
+  .close-btn {
+    &:hover {
+      cursor: pointer;
+    }
+  }
+}
