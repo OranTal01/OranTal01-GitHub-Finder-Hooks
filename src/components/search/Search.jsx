@@ -1,62 +1,54 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 
-class Search extends Component {
-  state = {
-    text: '',
+const Search = ({ setAlert, searchUser, clearUser, toggleClearBtn }) => {
+  const [text, setText] = useState('');
+
+  const handleChangeText = (e) => {
+    setText(e.target.value);
   };
 
-  handleChangeText = (e) => {
-    this.setState({ [e.target.name]: e.target.value.trim() });
-  };
-
-  handleSubmit = (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    if (!this.state.text) {
-      this.props.setAlert('Please enter text', 'danger');
+    const trimText = text.trim();
+    if (!trimText) {
+      setAlert('Please enter text', 'danger');
     } else {
-      this.props.searchUser(this.state.text);
-      this.setState({ text: '' });
+      searchUser(text);
+      setText('');
     }
   };
 
-  handleClearBtn = () => {
-    this.props.clearUser();
+  const handleClearBtn = () => {
+    clearUser();
   };
 
-  static propTypes = {
-    searchUser: PropTypes.func.isRequired,
-    clearUser: PropTypes.func.isRequired,
-    toggleClearBtn: PropTypes.bool.isRequired,
-    setAlert: PropTypes.func.isRequired,
-  };
+  return (
+    <div>
+      <form className='form' onSubmit={handleSubmit}>
+        <input
+          type='text'
+          name='text'
+          value={text}
+          placeholder='Search User...'
+          onChange={handleChangeText}
+        />
+        <button className='btn btn-dark btn-block'>Search</button>
+      </form>
+      {toggleClearBtn && (
+        <button className='btn btn-light btn-block' onClick={handleClearBtn}>
+          Clear
+        </button>
+      )}
+    </div>
+  );
+};
 
-  render() {
-    const { toggleClearBtn } = this.props;
-    const { text } = this.state;
-    return (
-      <div>
-        <form className='form' onSubmit={this.handleSubmit}>
-          <input
-            type='text'
-            name='text'
-            value={text}
-            placeholder='Search User...'
-            onChange={this.handleChangeText}
-          />
-          <button className='btn btn-dark btn-block'>Search</button>
-        </form>
-        {toggleClearBtn && (
-          <button
-            className='btn btn-light btn-block'
-            onClick={this.handleClearBtn}
-          >
-            Clear
-          </button>
-        )}
-      </div>
-    );
-  }
-}
+Search.propTypes = {
+  searchUser: PropTypes.func.isRequired,
+  clearUser: PropTypes.func.isRequired,
+  toggleClearBtn: PropTypes.bool.isRequired,
+  setAlert: PropTypes.func.isRequired,
+};
 
 export default Search;

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import axios from 'axios';
 
@@ -8,145 +8,139 @@ import Home from './pages/home/Home.jsx';
 import UserDetails from './components/user-details/UserDetails.jsx';
 
 import './App.css';
-export class App extends Component {
-  state = {
-    users: [],
-    user: {},
-    repos: [],
-    loading: false,
-    toggleClearBtn: false,
-    alert: {},
-  };
+const App = (_) => {
+  const [users, setUsers] = useState([]);
+  const [user, setUser] = useState({});
+  const [repos, setRepos] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [toggleClearBtn, setToggleClearBtn] = useState(false);
+  const [alert, setAlert] = useState({});
 
-  componentDidMount() {
-    this.getUsers();
-  }
+  useEffect(() => {
+    getUsers();
+  }, []);
 
   // get random github users
-  getUsers = async () => {
-    this.setState({ loading: true });
+  const getUsers = async () => {
+    setLoading(true);
+
     try {
       const res = await axios.get(
         `https://api.github.com/users?client_id=${process.env.REACT_APP_GITHUB_CLIENT_ID}&client_secret=${process.env.REACT_APP_GITHUB_CLIENT_SECRET}`
       );
-      this.setState({ users: res.data });
-      this.setState({ loading: false });
+      setUsers(res.data);
+      setLoading(false);
     } catch (error) {
       throw new Error('Something wont wrong with fetch users github users');
     }
   };
 
   //set alert
-  setAlert = (msg, type) => {
-    this.setState({ alert: { msg, type } });
+  const showAlert = (msg, type) => {
+    setAlert({ msg, type });
     setTimeout(() => {
-      this.setState({ alert: {} });
+      setAlert({});
     }, 5000);
   };
 
   // search github user
-  searchUser = async (text) => {
-    this.setState({ loading: true });
-    this.setState({ toggleClearBtn: true });
+  const searchUser = async (text) => {
+    setLoading(true);
+    setToggleClearBtn(true);
     try {
       const res = await axios.get(
         `https://api.github.com/search/users?q=${text}&client_id=${process.env.REACT_APP_GITHUB_CLIENT_ID}&client_secret=${process.env.REACT_APP_GITHUB_CLIENT_SECRET}`
       );
-      this.setState({ users: res.data.items });
+      setUsers(res.data.items);
     } catch (error) {
       throw new Error('Something wont wrong with search user');
     }
-    this.setState({ loading: false });
+    setLoading(false);
   };
 
   //get github user details
-  getUserDetails = async (userName) => {
-    this.setState({ loading: true });
+  const getUserDetails = async (userName) => {
+    setLoading(true);
 
     try {
       const res = await axios.get(
         `https://api.github.com/users/${userName}?client_id=${process.env.REACT_APP_GITHUB_CLIENT_ID}&client_secret=${process.env.REACT_APP_GITHUB_CLIENT_SECRET}`
       );
-
-      this.setState({ user: res.data });
+      setUser(res.data);
     } catch (error) {
       throw new Error('Something wont wrong with get user bio');
     }
-    this.setState({ loading: false });
+    setLoading(false);
   };
 
   //get github user repos
-  getUserRepos = async (userName) => {
-    this.setState({ loading: true });
+  const getUserRepos = async (userName) => {
+    setLoading(true);
 
     try {
       const res = await axios.get(
         `https://api.github.com/users/${userName}/repos?per_page=5&sort=created:asc&client_id=${process.env.REACT_APP_GITHUB_CLIENT_ID}&client_secret=${process.env.REACT_APP_GITHUB_CLIENT_SECRET}`
       );
-      this.setState({ repos: res.data });
+      setRepos(res.data);
     } catch (error) {
       throw new Error('Something wont wrong with get user repos');
     }
-
-    this.setState({ loading: false });
+    setLoading(false);
   };
 
   // get random github users
-  clearUser = () => {
-    this.getUsers();
-    this.setState({ toggleClearBtn: false });
+  const clearUser = () => {
+    getUsers();
+    setToggleClearBtn(false);
   };
 
-  closeNotification = () => {
-    this.setState({ alert: {} });
+  const closeNotification = () => {
+    setAlert({});
   };
 
-  render() {
-    const { users, user, loading, toggleClearBtn, alert, repos } = this.state;
-    return (
-      <div>
-        <Router>
-          <Navbar title={'GitHub Finder'} icon={'fab fa-github'} />
-          <div className='container'>
-            <Switch>
-              <Route
-                exact
-                path='/'
-                render={(props) => (
-                  <Home
-                    users={users}
-                    loading={loading}
-                    toggleClearBtn={toggleClearBtn}
-                    alert={alert}
-                    closeNotification={this.closeNotification}
-                    searchUser={this.searchUser}
-                    clearUser={this.clearUser}
-                    setAlert={this.setAlert}
-                    {...props}
-                  />
-                )}
-              />
-              <Route
-                exact
-                path='/user/:login'
-                render={(props) => (
-                  <UserDetails
-                    user={user}
-                    loading={loading}
-                    repos={repos}
-                    {...props}
-                    searchUser={this.getUserDetails}
-                    getUserRepos={this.getUserRepos}
-                  />
-                )}
-              />
-              <Route exact path='/about' component={About} />
-            </Switch>
-          </div>
-        </Router>
-      </div>
-    );
-  }
-}
+  return (
+    <div>
+      <Router>
+        <Navbar title={'GitHub Finder'} icon={'fab fa-github'} />
+        <div className='container'>
+          <Switch>
+            <Route
+              exact
+              path='/'
+              render={(props) => (
+                <Home
+                  users={users}
+                  loading={loading}
+                  toggleClearBtn={toggleClearBtn}
+                  alert={alert}
+                  closeNotification={closeNotification}
+                  searchUser={searchUser}
+                  clearUser={clearUser}
+                  setAlert={showAlert}
+                  {...props}
+                />
+              )}
+            />
+            <Route
+              exact
+              path='/user/:login'
+              render={(props) => (
+                <UserDetails
+                  user={user}
+                  loading={loading}
+                  repos={repos}
+                  {...props}
+                  searchUser={getUserDetails}
+                  getUserRepos={getUserRepos}
+                />
+              )}
+            />
+            <Route exact path='/about' component={About} />
+          </Switch>
+        </div>
+      </Router>
+    </div>
+  );
+};
 
 export default App;
