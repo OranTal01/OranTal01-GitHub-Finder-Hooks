@@ -36,23 +36,27 @@ export class App extends Component {
     }
   };
 
+  //set alert
+  setAlert = (msg, type) => {
+    this.setState({ alert: { msg, type } });
+    setTimeout(() => {
+      this.setState({ alert: {} });
+    }, 5000);
+  };
+
   // search github user
   searchUser = async (text) => {
-    if (!text) {
-      this.setState({ alert: { msg: 'Please enter text', type: 'danger' } });
-      setTimeout(() => {
-        this.setState({ alert: {} });
-      }, 5000);
-    } else {
-      this.setState({ loading: true });
-      this.setState({ toggleClearBtn: true });
-
+    this.setState({ loading: true });
+    this.setState({ toggleClearBtn: true });
+    try {
       const res = await axios.get(
         `https://api.github.com/search/users?q=${text}&client_id=${process.env.REACT_APP_GITHUB_CLIENT_ID}&client_secret=${process.env.REACT_APP_GITHUB_CLIENT_SECRET}`
       );
       this.setState({ users: res.data.items });
-      this.setState({ loading: false });
+    } catch (error) {
+      throw new Error('Something wont wrong with search user');
     }
+    this.setState({ loading: false });
   };
 
   //get github user details
@@ -117,6 +121,7 @@ export class App extends Component {
                     closeNotification={this.closeNotification}
                     searchUser={this.searchUser}
                     clearUser={this.clearUser}
+                    setAlert={this.setAlert}
                     {...props}
                   />
                 )}

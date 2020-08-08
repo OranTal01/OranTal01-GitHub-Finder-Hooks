@@ -7,13 +7,17 @@ class Search extends Component {
   };
 
   handleChangeText = (e) => {
-    this.setState({ [e.target.name]: e.target.value });
+    this.setState({ [e.target.name]: e.target.value.trim() });
   };
 
   handleSubmit = (e) => {
     e.preventDefault();
-    this.props.searchUser(this.state.text);
-    this.setState({ text: '' });
+    if (!this.state.text) {
+      this.props.setAlert('Please enter text', 'danger');
+    } else {
+      this.props.searchUser(this.state.text);
+      this.setState({ text: '' });
+    }
   };
 
   handleClearBtn = () => {
@@ -24,6 +28,7 @@ class Search extends Component {
     searchUser: PropTypes.func.isRequired,
     clearUser: PropTypes.func.isRequired,
     toggleClearBtn: PropTypes.bool.isRequired,
+    setAlert: PropTypes.func.isRequired,
   };
 
   render() {

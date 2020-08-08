@@ -13,6 +13,7 @@ const Home = ({
   searchUser,
   clearUser,
   closeNotification,
+  setAlert,
 }) => {
   return (
     <Fragment>
@@ -21,6 +22,7 @@ const Home = ({
         searchUser={searchUser}
         toggleClearBtn={toggleClearBtn}
         clearUser={clearUser}
+        setAlert={setAlert}
       />
       <Users users={users} loading={loading} />
     </Fragment>
